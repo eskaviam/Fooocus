@@ -3,6 +3,7 @@ import ldm_patched.modules.args_parser as args_parser
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
 args_parser.parser.add_argument("--preset", type=str, default=None, help="Apply specified UI preset.")
+args_parser.parser.add_argument("--ngrok", type=str, default=None, help="Use ngrok tunneling")
 
 args_parser.parser.add_argument("--language", type=str, default='default',
                                 help="Translate UI using json files in [language] folder. "

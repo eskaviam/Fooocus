@@ -14,6 +14,7 @@ import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import args_manager
 import copy
+import ngrok
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -539,6 +540,35 @@ def dump_default_english_config():
     from modules.localization import dump_english_config
     dump_english_config(grh.all_components)
 
+# Connect to ngrok for ingress
+def connect(token, port, options):
+    account = None
+    if token is None:
+        token = 'None'
+    else:
+        if ':' in token:
+            # token = authtoken:username:password
+            token, username, password = token.split(':', 2)
+            account = f"{username}:{password}"
+
+    # For all options see: https://github.com/ngrok/ngrok-py/blob/main/examples/ngrok-connect-full.py
+    if not options.get('authtoken_from_env'):
+        options['authtoken'] = token
+    if account:
+        options['basic_auth'] = account
+
+
+    try:
+        public_url = ngrok.connect(f"127.0.0.1:{port}", **options).url()
+    except Exception as e:
+        print(f'Invalid ngrok authtoken? ngrok connection aborted due to: {e}\n'
+              f'Your token: {token}, get the right one on https://dashboard.ngrok.com/get-started/your-authtoken')
+    else:
+        print(f'ngrok connected to localhost:{port}! URL: {public_url}\n'
+               'You can use this link after the launch is complete.')
+
+if args_manager.args.ngrok is not None:
+    connect(args_manager.args.ngrok, args_manager.args.port, {'region': "jp", 'authtoken_from_env': False})
 
 # dump_default_english_config()
 
